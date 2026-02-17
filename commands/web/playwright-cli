@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#ddev-generated
+# Remove the line above if you don't want this file to be overwritten when you run
+# ddev add-on get FreelyGive/ddev-playwright-cli
+#
+# This file comes from https://github.com/FreelyGive/ddev-playwright-cli
+#
+## Description: Run playwright-cli command
+## Usage: playwright-cli [options] [command]
+## Example: "ddev playwright-cli open"
+
+playwright-cli "$@"

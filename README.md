@@ -7,7 +7,7 @@
 
 ## Overview
 
-This add-on integrates Playwright Cli into your [DDEV](https://ddev.com/) project.
+This add-on integrates Playwright CLI into your [DDEV](https://ddev.com/) project.
 
 ## Installation
 
@@ -20,28 +20,9 @@ After installation, make sure to commit the `.ddev` directory to version control
 
 ## Usage
 
-| Command | Description |
-| ------- | ----------- |
-| `ddev describe` | View service status and used ports for Playwright Cli |
-| `ddev logs -s playwright-cli` | Check Playwright Cli logs |
-
-## Advanced Customization
-
-To change the Docker image:
-
-```bash
-ddev dotenv set .ddev/.env.playwright-cli --playwright-cli-docker-image="ddev/ddev-utilities:latest"
-ddev add-on get FreelyGive/ddev-playwright-cli
-ddev restart
-```
-
-Make sure to commit the `.ddev/.env.playwright-cli` file to version control.
-
-All customization options (use with caution):
-
-| Variable | Flag | Default |
-| -------- | ---- | ------- |
-| `PLAYWRIGHT_CLI_DOCKER_IMAGE` | `--playwright-cli-docker-image` | `ddev/ddev-utilities:latest` |
+| Command                       | Description                               |
+|-------------------------------|-------------------------------------------|
+| `ddev playwright-cli`         | Execute the Playwright CLI from the host. |
 
 ## Credits
 

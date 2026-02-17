@@ -19,7 +19,7 @@ setup() {
   export GITHUB_REPO=FreelyGive/ddev-playwright-cli
 
   TEST_BREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
-  export BATS_LIB_PATH="${BATS_LIB_PATH}:${TEST_BREW_PREFIX}/lib:/usr/lib/bats"
+  export BATS_LIB_PATH="${BATS_LIB_PATH:-}:${TEST_BREW_PREFIX}/lib:/usr/lib/bats:/usr/local/lib/bats"
   bats_load_library bats-assert
   bats_load_library bats-file
   bats_load_library bats-support
@@ -39,17 +39,13 @@ setup() {
 }
 
 health_checks() {
-  # Do something useful here that verifies the add-on
-
-  # You can check for specific information in headers:
-  # run curl -sfI https://${PROJNAME}.ddev.site
-  # assert_output --partial "HTTP/2 200"
-  # assert_output --partial "test_header"
-
-  # Or check if some command gives expected output:
-  DDEV_DEBUG=true run ddev launch
+  # Check that the add-on is working:
+  DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
   assert_success
-  assert_output --partial "FULLURL https://${PROJNAME}.ddev.site"
+  assert_line "  - browser-type: chrome"
+  assert_line "### Page"
+  assert_line "- Page URL: https://example.com/"
+  assert_line "- Page Title: Example Domain"
 }
 
 teardown() {
