@@ -39,6 +39,11 @@ setup() {
 }
 
 health_checks() {
+  # Check skills were installed:
+  head -n 2 "${TESTDIR}/.claude/skills/playwright-cli/SKILL.md" | tail -n 1
+  assert_success
+  assert_output "name: playwright-cli"
+
   # Check that the add-on is working:
   DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
   assert_success
