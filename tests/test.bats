@@ -40,7 +40,7 @@ setup() {
 
 health_checks() {
   # Check skills were installed:
-  head -n 2 "${TESTDIR}/.claude/skills/playwright-cli/SKILL.md" | tail -n 1
+  run bats_pipe head -n 2 "${TESTDIR}/.claude/skills/playwright-cli/SKILL.md" \| tail -n 1
   assert_success
   assert_output "name: playwright-cli"
 
