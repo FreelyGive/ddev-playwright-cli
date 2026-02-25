@@ -1,3 +1,9 @@
 #ddev-generated
 RUN npm install -g @playwright/cli@latest
 RUN npx playwright install chrome
+
+# Add the mkcert certificate authority.
+RUN apt-get update && apt-get install -y libnss3-tools
+
+# Clean up to save disk space.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
