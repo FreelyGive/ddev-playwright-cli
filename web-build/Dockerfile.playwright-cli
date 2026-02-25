@@ -1,6 +1,7 @@
 #ddev-generated
 RUN npm install -g @playwright/cli@latest
-RUN npx playwright install chrome chromium
+RUN npx playwright install-deps chromium
+RUN npx playwright install chromium
 
 # Add the mkcert certificate authority.
 RUN apt-get update && apt-get install -y libnss3-tools

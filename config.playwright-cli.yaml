@@ -4,4 +4,4 @@ hooks:
     - exec: "playwright-cli install --skills"
     - exec: mkdir -p $HOME/.pki/nssdb && certutil -d sql:$HOME/.pki/nssdb -N --empty-password && certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n mkcert-ca -i $(mkcert -CAROOT)/rootCA.pem
 web_environment:
-- PLAYWRIGHT_MCP_CONFIG=/var/www/html/.ddev/playwright-cli/playwright-cli.json
+- PLAYWRIGHT_MCP_BROWSER=chromium

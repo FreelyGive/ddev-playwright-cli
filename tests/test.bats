@@ -47,7 +47,7 @@ health_checks() {
   # Check that the add-on is working:
   DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
   assert_success
-  assert_line "  - browser-type: chrome"
+  assert_line "  - browser-type: chromium"
   assert_line "### Page"
   assert_line "- Page URL: https://example.com/"
   assert_line "- Page Title: Example Domain"
