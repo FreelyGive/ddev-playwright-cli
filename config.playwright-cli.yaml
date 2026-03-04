@@ -1,7 +1,15 @@
 #ddev-generated
 hooks:
   post-start:
+    # Ensure playwright-cli is installed.
+    - exec: "[ -x /var/www/html/node_modules/.bin/playwright-cli ] || npm install --save-dev @playwright/cli"
+    # Symlink so it can be called directly.
+    - exec: "ln -sf /var/www/html/node_modules/.bin/playwright-cli /usr/local/bin/playwright-cli"
+    # Install chromium and playwright-cli skills.
+    - exec: "playwright-cli install chromium"
     - exec: "[[ -d /var/www/html/.claude/skills/playwright-cli ]] || playwright-cli install --skills"
+    # Configure the cert store for DDEV/mkcert from the host.
     - exec: mkdir -p $HOME/.pki/nssdb && certutil -d sql:$HOME/.pki/nssdb -N --empty-password && certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n mkcert-ca -i $(mkcert -CAROOT)/rootCA.pem
 web_environment:
-- PLAYWRIGHT_MCP_BROWSER=chromium
+  - PLAYWRIGHT_BROWSERS_PATH=/mnt/ddev-global-cache/playwright-browsers
+  - PLAYWRIGHT_MCP_BROWSER=chromium
