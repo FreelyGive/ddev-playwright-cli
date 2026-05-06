@@ -47,15 +47,18 @@ health_checks() {
   # Check that the add-on is working:
   DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
   assert_success
-  assert_line "  - browser-type: chromium"
   assert_line "### Page"
   assert_line "- Page URL: https://example.com/"
   assert_line "- Page Title: Example Domain"
 
+  # Verify chromium is the resolved default browser.
+  run ddev playwright-cli config-print
+  assert_success
+  assert_output --partial "chromium"
+
   # Check that it can be executed directly in the container.
   DDEV_DEBUG=true run ddev exec playwright-cli open https://example.com/
   assert_success
-  assert_line "  - browser-type: chromium"
   assert_line "### Page"
   assert_line "- Page URL: https://example.com/"
   assert_line "- Page Title: Example Domain"
