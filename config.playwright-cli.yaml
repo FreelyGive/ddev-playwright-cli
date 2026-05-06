@@ -1,8 +1,10 @@
 #ddev-generated
 hooks:
   post-start:
-    # Ensure playwright-cli is installed.
-    - exec: "[ -x /var/www/html/node_modules/.bin/playwright-cli ] || npm install --save-dev @playwright/cli"
+    # Add @playwright/cli to package.json if it isn't already declared.
+    - exec: "grep -q '\"@playwright/cli\"' /var/www/html/package.json || npm install --save-dev @playwright/cli"
+    # Install dependencies from the lockfile if the binary isn't present yet.
+    - exec: "[ -x /var/www/html/node_modules/.bin/playwright-cli ] || npm ci"
     # Symlink so it can be called directly.
     - exec: "ln -sf /var/www/html/node_modules/.bin/playwright-cli /usr/local/bin/playwright-cli"
     # Install chromium and playwright-cli skills.
