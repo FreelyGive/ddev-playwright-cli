@@ -62,10 +62,26 @@ health_checks() {
   assert_line "- Page URL: https://example.com/"
   assert_line "- Page Title: Example Domain"
 
-  # Verify chromium is the resolved default browser.
+  # Verify chromium is the resolved default browser. Match the browserName field
+  # specifically rather than a bare "chromium" substring, which also appears in
+  # "chromiumSandbox" and would pass regardless of the resolved browser.
   run ddev playwright-cli config-print
   assert_success
-  assert_output --partial "chromium"
+  assert_output --partial '"browserName": "chromium"'
+}
+
+# Confirm the browser is provisioned by the install-browser hook itself, not as a
+# side effect of npm's install-time download. Wipe the shared browser cache and
+# restart with node_modules intact (npm install/ci are skipped), so the
+# install-browser hook is the only thing that can re-provision the browser.
+assert_browser_reinstalled_by_hook() {
+  run ddev exec rm -rf /mnt/ddev-global-cache/playwright-browsers
+  assert_success
+  run ddev restart -y
+  assert_success
+  DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
+  assert_success
+  assert_line "- Page Title: Example Domain"
 }
 
 teardown() {
@@ -88,6 +104,7 @@ teardown() {
   run ddev restart -y
   assert_success
   health_checks
+  assert_browser_reinstalled_by_hook
 }
 
 # bats test_tags=release
@@ -99,4 +116,5 @@ teardown() {
   run ddev restart -y
   assert_success
   health_checks
+  assert_browser_reinstalled_by_hook
 }
