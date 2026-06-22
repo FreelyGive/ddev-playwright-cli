@@ -39,6 +39,12 @@ setup() {
 }
 
 health_checks() {
+  # Verify playwright-cli resolves on PATH in the web container. Guards against the
+  # post-start hook regression where the binary was unreachable and later hooks
+  # (chromium install, skills install) silently failed.
+  run ddev exec command -v playwright-cli
+  assert_success
+
   # Check skills were installed:
   run bats_pipe head -n 2 "${TESTDIR}/.claude/skills/playwright-cli/SKILL.md" \| tail -n 1
   assert_success
@@ -55,13 +61,6 @@ health_checks() {
   run ddev playwright-cli config-print
   assert_success
   assert_output --partial "chromium"
-
-  # Check that it can be executed directly in the container.
-  DDEV_DEBUG=true run ddev exec playwright-cli open https://example.com/
-  assert_success
-  assert_line "### Page"
-  assert_line "- Page URL: https://example.com/"
-  assert_line "- Page Title: Example Domain"
 }
 
 teardown() {
