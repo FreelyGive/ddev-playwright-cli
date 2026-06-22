@@ -1,4 +1,10 @@
 #ddev-generated
+# Symlink playwright-cli onto PATH. Done at image-build time (as root) rather than in
+# a post-start hook, because the web user can't write to /usr/local/bin on newer
+# ddev-webserver images. The target is a runtime bind-mount path, so the link is
+# dangling at build and resolves once `npm ci` has populated node_modules.
+RUN ln -sf /var/www/html/node_modules/.bin/playwright-cli /usr/local/bin/playwright-cli
+
 # Install Chromium OS dependencies (version-independent).
 RUN npx -y playwright install-deps chromium
 
