@@ -6,7 +6,7 @@ hooks:
     # Install dependencies from the lockfile if the binary isn't present yet.
     - exec: "[ -x /var/www/html/node_modules/.bin/playwright-cli ] || npm ci"
     # Install chromium and playwright-cli skills.
-    - exec: "playwright-cli install chromium"
+    - exec: "playwright-cli install-browser chromium"
     - exec: "[[ -d /var/www/html/.claude/skills/playwright-cli ]] || playwright-cli install --skills"
     # Configure the cert store for DDEV/mkcert from the host.
     - exec: mkdir -p $HOME/.pki/nssdb && certutil -d sql:$HOME/.pki/nssdb -N --empty-password && certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n mkcert-ca -i $(mkcert -CAROOT)/rootCA.pem
