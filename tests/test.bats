@@ -15,6 +15,11 @@
 setup() {
   set -eu -o pipefail
 
+  # When CI is re-run with debug logging (RUNNER_DEBUG=1), make `run` print the
+  # $output of every command on failure. This surfaces the post-start hook log
+  # captured by `run ddev restart`, which is otherwise swallowed on success.
+  [ "${RUNNER_DEBUG:-}" = "1" ] && export BATS_VERBOSE_RUN=1
+
   # Override this variable for your add-on:
   export GITHUB_REPO=FreelyGive/ddev-playwright-cli
 
@@ -32,7 +37,7 @@ setup() {
   export DDEV_NO_INSTRUMENTATION=true
   ddev delete -Oy "${PROJNAME}" >/dev/null 2>&1 || true
   cd "${TESTDIR}"
-  run ddev config --project-name="${PROJNAME}" --project-tld=ddev.site
+  run ddev config --project-name="${PROJNAME}" --project-tld=ddev.site --omit-containers db,ddev-ssh-agent
   assert_success
   run ddev start -y
   assert_success
