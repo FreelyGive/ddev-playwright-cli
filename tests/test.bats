@@ -37,10 +37,22 @@ setup() {
   export DDEV_NO_INSTRUMENTATION=true
   ddev delete -Oy "${PROJNAME}" >/dev/null 2>&1 || true
   cd "${TESTDIR}"
+  # A known page in the docroot so health checks can fetch the project's own
+  # mkcert-signed HTTPS URL (which exercises the cert hook) instead of an external
+  # site. Served at / by the web container.
+  echo '<!doctype html><title>playwright-cli check</title><h1>ok</h1>' > index.html
   run ddev config --project-name="${PROJNAME}" --project-tld=ddev.site --omit-containers db,ddev-ssh-agent
   assert_success
   run ddev start -y
   assert_success
+}
+
+# DDEV runs post-start hooks non-fatally: a failing hook is logged but the command
+# still exits 0. Assert the preceding command's output reported no failed hook, so a
+# silently-broken hook (the class of bug behind the symlink and install-chromium
+# regressions) is caught at the source.
+refute_hook_failure() {
+  refute_output --partial "Task failed"
 }
 
 health_checks() {
@@ -55,12 +67,19 @@ health_checks() {
   assert_success
   assert_output "name: playwright-cli"
 
-  # Check that the add-on is working:
-  DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
+  # The cert hook added the mkcert CA to the browser's NSS trust store.
+  run ddev exec sh -c 'certutil -d "sql:$HOME/.pki/nssdb" -L'
+  assert_success
+  assert_output --partial "mkcert-ca"
+
+  # Check the add-on works AND chromium trusts the project's own mkcert-signed HTTPS
+  # cert, by opening the project URL (index.html served from the docroot). An
+  # untrusted CA would fail the navigation with net::ERR_CERT_AUTHORITY_INVALID.
+  DDEV_DEBUG=true run ddev playwright-cli open "https://${PROJNAME}.ddev.site/"
   assert_success
   assert_line "### Page"
-  assert_line "- Page URL: https://example.com/"
-  assert_line "- Page Title: Example Domain"
+  assert_line "- Page URL: https://${PROJNAME}.ddev.site/"
+  assert_line "- Page Title: playwright-cli check"
 
   # Verify chromium is the resolved default browser. Match the browserName field
   # specifically rather than a bare "chromium" substring, which also appears in
@@ -79,9 +98,10 @@ assert_browser_reinstalled_by_hook() {
   assert_success
   run ddev restart -y
   assert_success
-  DDEV_DEBUG=true run ddev playwright-cli open https://example.com/
+  refute_hook_failure
+  DDEV_DEBUG=true run ddev playwright-cli open "https://${PROJNAME}.ddev.site/"
   assert_success
-  assert_line "- Page Title: Example Domain"
+  assert_line "- Page Title: playwright-cli check"
 }
 
 teardown() {
@@ -103,6 +123,7 @@ teardown() {
   assert_success
   run ddev restart -y
   assert_success
+  refute_hook_failure
   health_checks
   assert_browser_reinstalled_by_hook
 }
@@ -115,6 +136,7 @@ teardown() {
   assert_success
   run ddev restart -y
   assert_success
+  refute_hook_failure
   health_checks
   assert_browser_reinstalled_by_hook
 }
