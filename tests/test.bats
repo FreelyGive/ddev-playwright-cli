@@ -87,6 +87,12 @@ health_checks() {
   run ddev playwright-cli config-print
   assert_success
   assert_output --partial '"browserName": "chromium"'
+
+  # Browser GC is disabled. The browser cache is shared across projects, so an
+  # install here must not evict revisions other projects pinned.
+  run ddev exec printenv PLAYWRIGHT_SKIP_BROWSER_GC
+  assert_success
+  assert_output "1"
 }
 
 # Confirm the browser is provisioned by the install-browser hook itself, not as a
