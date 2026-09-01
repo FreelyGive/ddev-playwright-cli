@@ -12,4 +12,9 @@ hooks:
     - exec: mkdir -p $HOME/.pki/nssdb && certutil -d sql:$HOME/.pki/nssdb -N --empty-password && certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n mkcert-ca -i $(mkcert -CAROOT)/rootCA.pem
 web_environment:
   - PLAYWRIGHT_BROWSERS_PATH=/mnt/ddev-global-cache/playwright-browsers
+  # The browser cache is shared across every DDEV project, but Playwright's
+  # garbage collection assumes it owns the directory and deletes revisions it
+  # doesn't recognise. Left on, an install here removes the browsers other
+  # projects pinned to a different playwright-core, forcing them to re-download.
+  - PLAYWRIGHT_SKIP_BROWSER_GC=1
   - PLAYWRIGHT_MCP_BROWSER=chromium
